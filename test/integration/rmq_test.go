@@ -13,7 +13,7 @@ func TestRabbit(t *testing.T) {
 
 		r, err := rmq.NewRabbit(
 			ctx,
-			"amqp://localhost:5672",
+			"amqp://guest:guest@127.0.0.1:5672",
 			"banner-test",
 			"banner-test",
 			"banners-stat-test",
