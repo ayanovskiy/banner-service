@@ -1,4 +1,4 @@
 .idea/
-.docker/data
+.docker/data/storage/*
 
 app

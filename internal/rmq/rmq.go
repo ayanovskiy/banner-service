@@ -22,7 +22,7 @@ type Rabbit struct {
 	channel     *amqp.Channel
 }
 
-func NewRabbit(ctx context.Context, dsn string, exchange string, queue string) (*Rabbit, error) {
+func NewRabbit(ctx context.Context, dsn, exchange, queue, tag string) (*Rabbit, error) {
 	conn, err := amqp.Dial(dsn)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func NewRabbit(ctx context.Context, dsn string, exchange string, queue string) (
 		ctx:         ctx,
 		exchange:    exchange,
 		queue:       queue,
-		consumerTag: "banners-stat",
+		consumerTag: tag,
 		channel:     ch,
 	}, nil
 }

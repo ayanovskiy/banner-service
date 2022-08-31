@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"log"
 
 	"banner-service/internal/app"
 )
@@ -15,7 +16,10 @@ func init() {
 func main() {
 	flag.Parse()
 
-	application, _ := app.NewApp(configFile)
+	application, err := app.NewApp(configFile)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	application.Run()
 }

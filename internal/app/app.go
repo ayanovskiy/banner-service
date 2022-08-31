@@ -1,18 +1,19 @@
 package app
 
 import (
+	"banner-service/internal/rmq"
 	"banner-service/internal/server"
 	"banner-service/internal/storage"
 	"context"
-	"fmt"
 	"github.com/jackc/pgx/v4"
+	"log"
 )
 
 type App struct {
 	config  *Config
-	ctx     context.Context
 	server  *server.Server
 	storage storage.IStorage
+	rmq     *rmq.Rabbit
 }
 
 func NewApp(configPath string) (*App, error) {
@@ -26,22 +27,24 @@ func NewApp(configPath string) (*App, error) {
 	if err != nil {
 		return nil, err
 	}
+	rabbit, err := rmq.NewRabbit(ctx, cfg.Rabbit.Dsn, cfg.Rabbit.Exchange, cfg.Rabbit.Queue, cfg.Rabbit.Tag)
+	if err != nil {
+		return nil, err
+	}
 
 	return &App{
 		config:  cfg,
 		server:  server.NewServer(cfg.Server.Addr, cfg.Server.Port),
 		storage: storage.NewStorage(ctx, db),
+		rmq:     rabbit,
 	}, nil
 }
 
 func (app App) Run() {
-	go func() {
-		<-app.ctx.Done()
-		defer app.storage.CloseDb()
-	}()
+	defer app.storage.CloseDb()
 
-	err := app.server.Run(app.storage)
+	err := app.server.Run(server.NewRouters(app.storage, app.rmq))
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
 }

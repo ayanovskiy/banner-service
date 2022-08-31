@@ -1,0 +1,35 @@
+version: '3.4'
+
+services:
+  db:
+    container_name: banner-service-storage
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_DB: banner
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - ./data/storage:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  rabbit:
+    image: rabbitmq:3.9.11-management
+    container_name: banner-service-rmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  app:
+    container_name: banner-service-app
+    build:
+      context: ./
+      dockerfile: app.dockerfile
+    restart: always
+    tty: true
+    depends_on:
+      - db
+      - rabbit
+    ports:
+      - "8080:8080"

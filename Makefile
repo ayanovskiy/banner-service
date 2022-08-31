@@ -1,10 +1,36 @@
+ifeq ($(OS),Windows_NT)
+    GOOS := windows
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        GOOS := linux
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        GOOS := darwin
+    endif
+endif
+
+.PHONY: dev-build
+dev-build:
+	go build -v ./cmd/app.go
+
 .PHONY: build
 build:
-	CGO_ENABLED=0 go build -v ./cmd/app.go
+	GOOS=${GOOS} CGO_ENABLED=0 GOARCH=amd64 go build -v -trimpath ./cmd/app.go
+
+.PHONY: test-unit
+test-unit:
+	go test ./internal/... -v -race -count=10
+
+.PHONY: test-integration
+test-integration:
+	go test ./test/integration/... -v
 
 .PHONY: test
-test:
-	go test ./... -v -race -count=10
+test: test-unit test-integration
+
+.PHONY: run
+run: docker-build docker-up
 
 .PHONY: lint
 lint:
@@ -12,12 +38,12 @@ lint:
 
 .PHONY: docker-build
 docker-build:
-	docker-compose -f ./.docker/docker-compose.yaml build
+	docker-compose -f docker-compose.yaml build
 
 .PHONY: docker-up
 docker-up:
-	docker-compose -f ./.docker/docker-compose.yaml up -d --remove-orphans
+	docker-compose -f docker-compose.yaml up -d --remove-orphans
 
 .PHONY: docker-down
 docker-down:
-	docker-compose -f ./.docker/docker-compose.yaml down --remove-orphans
+	docker-compose -f docker-compose.yaml down --remove-orphans

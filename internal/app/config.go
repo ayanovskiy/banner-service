@@ -17,6 +17,12 @@ type Config struct {
 	Database struct {
 		Dsn string `yaml:"dsn"`
 	} `yaml:"database"`
+	Rabbit struct {
+		Dsn      string `yaml:"dsn"`
+		Exchange string `yaml:"exchange"`
+		Queue    string `yaml:"queue"`
+		Tag      string `yaml:"tag"`
+	} `yaml:"rabbit"`
 }
 
 var ErrUnsupportedType = errors.New("unsupported type")

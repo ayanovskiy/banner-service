@@ -16,6 +16,7 @@ type IStorage interface {
 	UpdateStat(statId uint, shows uint, hits uint) error
 	AddBannerToSlot(slotId uint, bannerId uint) error
 	RemoveBannerFromSlot(slotId uint, bannerId uint) error
+	FindStats() (model.Stats, error)
 }
 
 type Storage struct {
@@ -233,4 +234,33 @@ func (s Storage) RemoveBannerFromSlot(slotId uint, bannerId uint) error {
 	}
 
 	return nil
+}
+
+// FindStats ищет всю статистику
+func (s Storage) FindStats() (model.Stats, error) {
+	_, err := s.db.Prepare(s.ctx,
+		"find stats",
+		"SELECT s.id, s.slot_id, s.banner_id, s.group_id, s.shows, s.hits FROM stats s",
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := s.db.Query(s.ctx, "find stats")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	stats := make(model.Stats, 0)
+	for rows.Next() {
+		var id, slotId, bannerId, groupId, shows, hits uint
+		err = rows.Scan(&id, &slotId, &bannerId, &groupId, &shows, &hits)
+		if err != nil {
+			return nil, err
+		}
+		stats = append(stats, &model.Stat{Id: id, SlotId: slotId, BannerId: bannerId, GroupId: groupId, Shows: shows, Hits: hits})
+	}
+
+	return stats, nil
 }
