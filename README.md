@@ -1,4 +1,4 @@
-[![ci](https://github.com/ayanovskiy/banner-service/actions/workflows/tests.yml/badge.svg)](https://github.com/ayanovskiy/banner-service/actions/workflows/tests.yml)
+[![ci](https://github.com/ayanovskiy/banner-service/actions/workflows/tests.yaml/badge.svg)](https://github.com/ayanovskiy/banner-service/actions/workflows/tests.yaml)
 # Проектная работа "Ротация баннеров"
 
 ## Общее описание сервиса
